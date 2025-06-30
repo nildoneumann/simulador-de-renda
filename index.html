@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Renda</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #ffffff;
+      padding: 40px;
+      font-size: 36px;
+      font-weight: bold;
+    }
+    h1 {
+      text-align: center;
+      color: #1e88e5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: #1e1e1e;
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 0 20px #333;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 24px;
+      margin: 20px 0;
+      font-size: 36px;
+      font-weight: bold;
+      background: #2c2c2c;
+      color: #ffffff;
+      border: 1px solid #444;
+      border-radius: 6px;
+    }
+    .inline-row {
+      display: flex;
+      gap: 10px;
+    }
+    .inline-row input {
+      flex: 2;
+    }
+    .inline-row select {
+      flex: 1;
+    }
+    .result {
+      margin-top: 20px;
+      background: #2c2c2c;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #c8e6c9;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simulador de Renda Fixa</h1>
+  <div class="container">
+    <label>Tipo de Investimento</label>
+    <select id="tipo" onchange="atualizarCampos()">
+      <optgroup label="CDB">
+        <option value="cdb_pre">CDB Pré-fixado</option>
+        <option value="cdb_pos">CDB Pós-fixado (CDI+)</option>
+        <option value="cdb_hibrido">CDB Híbrido (IPCA+)</option>
+      </optgroup>
+      <optgroup label="LCI">
+        <option value="lci_pre">LCI Pré-fixado</option>
+        <option value="lci_pos">LCI Pós-fixado (CDI+)</option>
+        <option value="lci_hibrido">LCI Híbrido (IPCA+)</option>
+      </optgroup>
+      <optgroup label="LCA">
+        <option value="lca_pre">LCA Pré-fixado</option>
+        <option value="lca_pos">LCA Pós-fixado (CDI+)</option>
+        <option value="lca_hibrido">LCA Híbrido (IPCA+)</option>
+      </optgroup>
+    </select>
+
+    <label>Valor Investido (R$)</label>
+    <input type="number" id="valor" placeholder="Ex: 10000">
+
+    <label>Prazo</label>
+    <div class="inline-row">
+      <input type="number" id="prazo" placeholder="Ex: 24">
+      <select id="prazo_tipo">
+        <option value="meses" selected>Meses</option>
+        <option value="dias">Dias</option>
+      </select>
+    </div>
+
+    <div id="taxa_unica_div">
+      <label>Rentabilidade (% ao ano)</label>
+      <input type="number" id="taxa_unica" placeholder="Ex: 12">
+    </div>
+
+    <div id="taxa_dupla_div" class="hidden">
+      <label id="label_base">Taxa base anual (%):</label>
+      <input type="number" id="taxa_base" placeholder="Ex: 10.65">
+      <label>Adicional (%):</label>
+      <input type="number" id="taxa_adicional" placeholder="Ex: 10 para CDI+10%">
+    </div>
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div class="result" id="resultado"></div>
+<p>O cálculo da rentabilidade levará em conta apenas os dias úteis do ano,que geralmente são 252 dias (21 dias por mês em média).</p>
+  </div>
+
+  <script>
+    function atualizarCampos() {
+      const tipo = document.getElementById("tipo").value;
+      const isPos = tipo.includes("pos");
+      const isHibrido = tipo.includes("hibrido");
+
+      const unicaDiv = document.getElementById("taxa_unica_div");
+      const duplaDiv = document.getElementById("taxa_dupla_div");
+      const labelBase = document.getElementById("label_base");
+
+      if (isPos || isHibrido) {
+        unicaDiv.classList.add("hidden");
+        duplaDiv.classList.remove("hidden");
+        labelBase.innerText = isPos ? "CDI atual (%):" : "IPCA atual (%):";
+      } else {
+        unicaDiv.classList.remove("hidden");
+        duplaDiv.classList.add("hidden");
+      }
+    }
+
+    function calcular() {
+      const tipo = document.getElementById("tipo").value;
+      const valor = parseFloat(document.getElementById("valor").value);
+      const prazo = parseInt(document.getElementById("prazo").value);
+      const tipoPrazo = document.getElementById("prazo_tipo").value;
+
+      let dias = 0, meses = 0, anos = 0;
+
+      if (tipoPrazo === "dias") {
+        dias = prazo;
+        meses = dias / 21;
+        anos = dias / 252;
+      } else {
+        meses = prazo;
+        dias = meses * 21;
+        anos = meses / 12;
+      }
+
+      if (isNaN(valor) || isNaN(prazo) || valor <= 0 || prazo <= 0) {
+        alert("Preencha o valor e o prazo corretamente.");
+        return;
+      }
+
+      const isIsento = tipo.startsWith('lci') || tipo.startsWith('lca');
+      const isPos = tipo.includes("pos");
+      const isHibrido = tipo.includes("hibrido");
+
+      let taxaAnual = 0;
+
+      if (isPos) {
+        const cdi = parseFloat(document.getElementById("taxa_base").value || 0);
+        const adicional = parseFloat(document.getElementById("taxa_adicional").value || 0);
+        if (isNaN(cdi) || isNaN(adicional)) {
+          alert("Preencha corretamente o CDI e o adicional.");
+          return;
+        }
+        taxaAnual = cdi * (1 + adicional / 100);
+      } else if (isHibrido) {
+        const ipca = parseFloat(document.getElementById("taxa_base").value || 0);
+        const adicional = parseFloat(document.getElementById("taxa_adicional").value || 0);
+        if (isNaN(ipca) || isNaN(adicional)) {
+          alert("Preencha corretamente o IPCA e o adicional.");
+          return;
+        }
+        taxaAnual = ipca * (1 + adicional / 100);
+      } else {
+        taxaAnual = parseFloat(document.getElementById("taxa_unica").value || 0);
+        if (isNaN(taxaAnual)) {
+          alert("Preencha corretamente a taxa anual.");
+          return;
+        }
+      }
+
+      const taxaDiaria = Math.pow(1 + (taxaAnual / 100), 1 / 252) - 1;
+      const montante = valor * Math.pow(1 + taxaDiaria, dias);
+      const rendimento = montante - valor;
+
+      let ir = 0;
+      if (!isIsento) {
+        if (dias <= 126) ir = 0.225;
+        else if (dias <= 252) ir = 0.20;
+        else if (dias <= 504) ir = 0.175;
+        else ir = 0.15;
+      }
+
+      const imposto = rendimento * ir;
+      const liquido = montante - imposto;
+
+      document.getElementById("resultado").innerHTML = `
+        <strong>Resultado da simulação:</strong><br>
+        Tipo: ${tipo.toUpperCase().replaceAll('_', ' ')}<br>
+        Valor Bruto Final: R$ ${montante.toFixed(2)}<br>
+        Rendimento Bruto: R$ ${rendimento.toFixed(2)}<br>
+        ${isIsento ? 'Isento de IR<br>' : `Imposto de Renda: R$ ${imposto.toFixed(2)}<br>`}
+        Valor Líquido Final: R$ ${liquido.toFixed(2)}<br>
+        Rentabilidade Líquida Anual: ${(((liquido / valor) ** (1 / anos) - 1) * 100).toFixed(2)}%
+      `;
+    }
+
+    window.addEventListener('DOMContentLoaded', atualizarCampos);
+  </script>
+</body>
+</html>
+
+</body>
+</html>

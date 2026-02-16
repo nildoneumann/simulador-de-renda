@@ -18,7 +18,7 @@
       text-align: center;
       color: darkblue;
       margin-bottom: 16px;
-      margin-top: 16px;
+      margin-top: 10px;
     }
     .container {
       max-width: 600px;
@@ -83,7 +83,7 @@
     </select>
 
     <label>Valor Investido (R$)</label>
-    <input type="number" id="valor" placeholder="Ex: 10000">
+    <input type="number" id="valor" placeholder="Ex: 10000" style="width: 90%">
 
     <label>Prazo</label>
     <div class="inline-row">
@@ -96,7 +96,7 @@
 
     <div id="taxa_unica_div">
       <label>Rentabilidade (% ao ano)</label>
-      <input type="number" id="taxa_unica" placeholder="Ex: 12">
+      <input type="number" id="taxa_unica" placeholder="Ex: 12" style="width: 90%">
     </div>
 
     <div id="taxa_dupla_div" class="hidden">
@@ -105,11 +105,9 @@
       <label>Adicional (%):</label>
       <input type="number" id="taxa_adicional" placeholder="Ex: 10 para CDI+10%">
     </div>
-
-    <button onclick="calcular()">Calcular</button>
+    <button onclick="calcular()" style="background: blue; border: 2px solid white; padding: 10px">Calcular</button>
 
     <div class="result" id="resultado"></div>
-<p>O cálculo levará em conta apenas os dias úteis do ano,que geralmente são 252 dias = 21 dias por mês em média.</p>
   </div>
 
   <script>

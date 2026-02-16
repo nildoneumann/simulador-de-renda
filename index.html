@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #121212;
+      background: lightyellow;
       color: #ffffff;
       padding: 20px;
       font-size: 18px;
@@ -16,7 +16,9 @@
     }
     h1 {
       text-align: center;
-      color: #1e88e5;
+      color: darkblue;
+      margin-bottom: 16px;
+      margin-top: 16px;
     }
     .container {
       max-width: 600px;
@@ -33,7 +35,7 @@
       font-size: 18px;
       font-weight: bold;
       background: #2c2c2c;
-      color: #ffffff;
+      color: yellow;
       border: 1px solid #444;
       border-radius: 6px;
     }
@@ -55,6 +57,7 @@
       font-size: 18px;
       font-weight: bold;
       color: #c8e6c9;
+      border: 1px solid yellow;
     }
     .hidden {
       display: none;
@@ -62,25 +65,21 @@
   </style>
 </head>
 <body>
-  <h1>Simulador de Renda Fixa</h1>
+  <h1>Simulador de Renda Fixa 📈</h1>
   <div class="container">
     <label>Tipo de Investimento</label>
     <select id="tipo" onchange="atualizarCampos()">
       <optgroup label="CDB">
         <option value="cdb_pre">CDB Pré-fixado</option>
         <option value="cdb_pos">CDB Pós-fixado (CDI+)</option>
-        <option value="cdb_hibrido">CDB Híbrido (IPCA+)</option>
+        // option value="lca_hibrido">LCA Híbrido (IPCA+)</option (opção ipca+)
       </optgroup>
-      <optgroup label="LCI">
-        <option value="lci_pre">LCI Pré-fixado</option>
-        <option value="lci_pos">LCI Pós-fixado (CDI+)</option>
-        <option value="lci_hibrido">LCI Híbrido (IPCA+)</option>
+      <optgroup label="LCI / LCA">
+        <option value="lci_pre">LCI / LCA Pré-fixado</option>
+        <option value="lci_pos">LCI / LCA Pós-fixado (CDI+)</option>
+        // option value="lca_hibrido">LCA Híbrido (IPCA+)</option (opção ipca+)
       </optgroup>
-      <optgroup label="LCA">
-        <option value="lca_pre">LCA Pré-fixado</option>
-        <option value="lca_pos">LCA Pós-fixado (CDI+)</option>
-        <option value="lca_hibrido">LCA Híbrido (IPCA+)</option>
-      </optgroup>
+      
     </select>
 
     <label>Valor Investido (R$)</label>
@@ -143,11 +142,11 @@
 
       if (tipoPrazo === "dias") {
         dias = prazo;
-        meses = dias / 21;
-        anos = dias / 252;
+        meses = dias / 30;
+        anos = dias / 365;
       } else {
         meses = prazo;
-        dias = meses * 21;
+        dias = meses * 30;
         anos = meses / 12;
       }
 
@@ -186,15 +185,15 @@
         }
       }
 
-      const taxaDiaria = Math.pow(1 + (taxaAnual / 100), 1 / 252) - 1;
+      const taxaDiaria = Math.pow(1 + (taxaAnual / 100), 1 / 365) - 1;
       const montante = valor * Math.pow(1 + taxaDiaria, dias);
       const rendimento = montante - valor;
 
       let ir = 0;
       if (!isIsento) {
-        if (dias <= 126) ir = 0.225;
-        else if (dias <= 252) ir = 0.20;
-        else if (dias <= 504) ir = 0.175;
+        if (dias <= 180) ir = 0.225;
+        else if (dias <= 360) ir = 0.20;
+        else if (dias <= 720) ir = 0.175;
         else ir = 0.15;
       }
 

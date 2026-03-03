@@ -187,15 +187,16 @@
         }
       }
 
-      const taxaDiaria = Math.pow(1 + (taxaAnual / 100), 1 / 365) - 1;
+      const taxaDiaria = Math.pow(1 + (taxaAnual / 100), 1 / 360) - 1;
       const montante = valor * Math.pow(1 + taxaDiaria, dias);
       const rendimento = montante - valor;
 
+      /* IR regressivo real (até 180 22.5%, até 360 20%, até 720 17,5%, =>721 15%) */
       let ir = 0;
       if (!isIsento) {
-        if (dias <= 180) ir = 0.225;
-        else if (dias <= 360) ir = 0.20;
-        else if (dias <= 720) ir = 0.175;
+        if (dias <= 179) ir = 0.225;
+        else if (dias <= 359) ir = 0.20;
+        else if (dias <= 719) ir = 0.175;
         else ir = 0.15;
       }
 
